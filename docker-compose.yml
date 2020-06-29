@@ -1,101 +1,100 @@
-version: '3' 
+version: '3'
 services:
+    namenode:
+      image: bde2020/hadoop-namenode:2.0.0-hadoop2.7.4-java8
+      container_name: namenode
+      volumes:
+        - /home/shmandor2009/hdfs/namenode:/hadoop/dfs/name
+      environment:
+        - CLUSTER_NAME=test
+      env_file:
+        - ./hadoop-hive.env
+      ports:
+        - "50070:50070"
+      networks:
+        net_pet:
+          ipv4_address: 172.27.1.5
+    datanode-01:
+      image: bde2020/hadoop-datanode:2.0.0-hadoop2.7.4-java8
+      container_name: datanode-01
+      volumes:
+        - /home/shmandor2009/hdfs/datanode:/hadoop/dfs/data
+        - ./bank:/bank
+      env_file:
+        - ./hadoop-hive.env
+      environment:
+        SERVICE_PRECONDITION: "namenode:50070"
+      depends_on:
+        - namenode
+      ports:
+        - "50075:50075"
+      networks:
+        net_pet:
+          ipv4_address: 172.27.1.6
 
-  namenode:
-    image: bde2020/hadoop-namenode:2.0.0-hadoop2.7.4-java8
-    container_name: namenode
-    volumes:
-      - /home/shmandor2009/hdfs/namenode:/hadoop/dfs/name
-    environment:
-      - CLUSTER_NAME=test
-    env_file:
-      - ./hadoop-hive.env
-    ports:
-      - "50070:50070"
-    networks:
-      net_pet:
-        ipv4_address: 172.27.1.5
-  datanode-01:
-    image: bde2020/hadoop-datanode:2.0.0-hadoop2.7.4-java8
-    container_name: datanode-01
-    volumes:
-      - /home/shmandor2009/hdfs/datanode:/hadoop/dfs/data
-      - ./bank:/bank
-    env_file:
-      - ./hadoop-hive.env
-    environment:
-      SERVICE_PRECONDITION: "namenode:50070"
-    depends_on:
-      - namenode
-    ports:
-      - "50075:50075"
-    networks:
-      net_pet:
-        ipv4_address: 172.27.1.6
-
-  datanode-02:
-    image: bde2020/hadoop-datanode:2.0.0-hadoop2.7.4-java8
-    container_name: datanode-02
-    volumes:
-      - /home/shmandor2009/hdfs/datanode:/hadoop/dfs/data
-      - ./bank:/bank
-    env_file:
-      - ./hadoop-hive.env
-    environment:
-      SERVICE_PRECONDITION: "namenode:50070"
-    depends_on:
-      - namenode
-    ports:
-      - "50076:50076"
-    networks:
-      net_pet:
-        ipv4_address: 172.27.1.7      
+    datanode-02:
+      image: bde2020/hadoop-datanode:2.0.0-hadoop2.7.4-java8
+      container_name: datanode-02
+      volumes:
+        - /home/shmandor2009/hdfs/datanode:/hadoop/dfs/data
+        - ./bank:/bank
+      env_file:
+        - ./hadoop-hive.env
+      environment:
+        SERVICE_PRECONDITION: "namenode:50070"
+      depends_on:
+       - namenode
+      ports:
+        - "50076:50076"
+      networks:
+        net_pet:
+          ipv4_address: 172.27.1.7      
   
-  hive-server:
-    image: bde2020/hive:2.3.2-postgresql-metastore
-    container_name: hive-server
-    env_file:
-      - ./hadoop-hive.env
-    environment:
-      HIVE_CORE_CONF_javax_jdo_option_ConnectionURL: "jdbc:postgresql://hive-metastore/metastore"
-      SERVICE_PRECONDITION: "hive-metastore:9083"
-    ports:
-      - "10000:10000"
-    depends_on:
-      - hive-metastore
-    networks:
-      net_pet:
-        ipv4_address: 172.27.1.8
+    hive-server:
+      image: bde2020/hive:2.3.2-postgresql-metastore
+      container_name: hive-server
+      env_file:
+        - ./hadoop-hive.env
+      environment:
+        HIVE_CORE_CONF_javax_jdo_option_ConnectionURL: "jdbc:postgresql://hive-metastore/metastore"
+        SERVICE_PRECONDITION: "hive-metastore:9083"
+      ports:
+        - "10000:10000"
+      depends_on:
+        - hive-metastore
+      networks:
+        net_pet:
+          ipv4_address: 172.27.1.8
   
-  hive-metastore:
-    image: bde2020/hive:2.3.2-postgresql-metastore
-    container_name: hive-metastore
-    env_file:
-      - ./hadoop-hive.env
-    command: /opt/hive/bin/hive --service metastore
-    environment:
-      SERVICE_PRECONDITION: "namenode:50070 datanode-01:50075 datanode-02:50076 hive-metastore-postgresql:5432"
-    ports:
+    hive-metastore:
+      image: bde2020/hive:2.3.2-postgresql-metastore
+      container_name: hive-metastore
+      env_file:
+        - ./hadoop-hive.env
+      command: /opt/hive/bin/hive --service metastore
+      environment:
+        SERVICE_PRECONDITION: "namenode:50070 datanode-01:50075 datanode-02:50076 hive-metastore-postgresql:5432"
+      ports:
       - "9083:9083"
-    depends_on:
-      - hive-metastore-postgresql
-    networks:
-      net_pet:
-        ipv4_address: 172.27.1.9
+      depends_on:
+        - hive-metastore-postgresql
+      networks:
+        net_pet:
+          ipv4_address: 172.27.1.9
   
-  hive-metastore-postgresql:
-    image: bde2020/hive-metastore-postgresql:2.3.0
-    container_name: hive-metastore-postgresql
-    depends_on:
-      - datanode-01
-      - datanode-02
+    hive-metastore-postgresql:
+      image: bde2020/hive-metastore-postgresql:2.3.0
+      container_name: hive-metastore-postgresql
+      depends_on:
+        - datanode-01
+        - datanode-02
+      networks:
+        net_pet:
+          ipv4_address: 172.27.1.10
+
     networks:
       net_pet:
-        ipv4_address: 172.27.1.10
-
-  networks:
-    net_pet:
-     ipam:
-       driver: default
-       config:
-         - subnet: 172.27.0.0/19       
+        ipam:
+          driver: default
+          config:
+            - subnet: 172.27.0.0/19       
