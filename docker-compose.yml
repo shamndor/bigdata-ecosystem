@@ -94,8 +94,8 @@ services:
         ipv4_address: 172.27.1.10
 
   networks:
-   net_pet:
-    ipam:
-      driver: default
-      config:
-        - subnet: 172.27.0.0/19       
+    net_pet:
+     ipam:
+       driver: default
+       config:
+         - subnet: 172.27.0.0/19       
