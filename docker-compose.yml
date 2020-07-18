@@ -18,7 +18,7 @@ services:
       image: bde2020/hadoop-datanode:2.0.0-hadoop2.7.4-java8
       container_name: datanode-01
       volumes:
-        - /home/shmandor2009/hdfs/datanode:/hadoop/dfs/data
+        - /home/shmandor2009/hdfs/datanode01:/hadoop/dfs/data
         - ./bank:/bank
       env_file:
         - ./env.env
@@ -36,7 +36,7 @@ services:
       image: bde2020/hadoop-datanode:2.0.0-hadoop2.7.4-java8
       container_name: datanode-02
       volumes:
-        - /home/shmandor2009/hdfs/datanode:/hadoop/dfs/data
+        - /home/shmandor2009/hdfs/datanode02:/hadoop/dfs/data
         - ./bank:/bank
       env_file:
         - ./env.env
