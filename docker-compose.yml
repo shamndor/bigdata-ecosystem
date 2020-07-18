@@ -14,9 +14,9 @@ services:
     networks:
       net_pet:
         ipv4_address: 172.27.1.5
-  datanode-01:
+  datanode:
     image: bde2020/hadoop-datanode:2.0.0-hadoop2.7.4-java8
-    container_name: datanode-01
+    container_name: datanode
     volumes:
       - /home/shmandor2009/hdfs/datanode:/hadoop/dfs/data
       - ./bank:/bank
